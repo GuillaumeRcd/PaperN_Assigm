@@ -1,35 +1,56 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from 'react';
+import { fetchNetworkCoverage } from './APIS/api.backend';
+// import { searchAddress } from './APIS/api.data.gouv';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [address, setAddress] = useState('');
+  const [coverage, setCoverage] = useState({});
+  const [proxyResponse, setProxyResponse] = useState(null);
+
+  const handleAddressChange = (e) => {
+    setAddress(e.target.value);
+  };
+
+  const fetchProxyResponse = async () => {
+    try {
+      console.log(address);
+      const response = await fetch(`http://localhost:8000/proxy/?address=${address}`);
+      const data = await response.json();
+      setProxyResponse(data);
+      console.log(data); 
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
+  const fetchCoverage = async () => {
+    try {
+      const data = await fetchNetworkCoverage(address);
+      setCoverage(data);
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
 
   return (
-    <>
+    <div>
+      <h1>Network Coverage Checker</h1>
       <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+        <input
+          type="text"
+          placeholder="Enter address..."
+          value={address}
+          onChange={handleAddressChange}
+        />
+        <button onClick={fetchCoverage}>Check Coverage</button>
+        <button onClick={fetchProxyResponse}>Fetch Proxy Response</button>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
+      <div>
+        <h2>Network Coverage:</h2>
+        <pre>{JSON.stringify(coverage, null, 2)}</pre>
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    </div>
+  );
 }
 
-export default App
+export default App;
