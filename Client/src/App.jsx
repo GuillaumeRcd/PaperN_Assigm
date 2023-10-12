@@ -2,7 +2,7 @@ import { useState } from "react";
 import AsyncSelect from "react-select/async";
 
 function App() {
-  const [coverage, setCoverage] = useState({});
+  const [coverage, setCoverage] = useState(null);
   const [selectedAddress, setSelectedAddress] = useState(null);
 
   const loadOptions = (inputValue, callback) => {
@@ -46,6 +46,7 @@ function App() {
         }
 
         const data = await response.json();
+        setCoverage(data);
         console.log("Réponse du backend :", data);
       } catch (error) {
         console.error("Erreur lors de la requête vers le backend:", error);
@@ -55,7 +56,8 @@ function App() {
 
   return (
     <div>
-      <h1>Network Coverage Checker</h1>
+      <h1>Recherche de couverture réseau</h1>
+      <p>Tapez l'adresse que vous souhaitez analyser</p>
       <div>
         <AsyncSelect
           cacheOptions
@@ -69,8 +71,12 @@ function App() {
         <button onClick={handleSearchNetwork}>Chercher réseau</button>
       </div>
       <div>
-        <h2>Network Coverage:</h2>
+        {coverage && 
+        <>
+        <h2>Résultat</h2>
         <pre>{JSON.stringify(coverage, null, 2)}</pre>
+        </>
+      }
       </div>
     </div>
   );
